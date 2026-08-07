@@ -13,6 +13,7 @@ from .sports import get_fenerbahce_match_status
 from .vehicle import get_vehicle_maintenance_status
 from .fuel import get_fuel_prices
 from .parking import get_parking_status
+from .housing_loans import get_housing_loan_rates
 
 def compose_daily_briefing():
     """
@@ -29,6 +30,7 @@ def compose_daily_briefing():
     parking_info = get_parking_status()
     vehicle_info = get_vehicle_maintenance_status()
     fuel_info = get_fuel_prices()
+    housing_loan_info = get_housing_loan_rates()
 
     message = f"""🌅 **Günaydın! Günlük Özetiniz ({date_str} - 07:00)**
 
@@ -39,6 +41,8 @@ def compose_daily_briefing():
 {finance_info}
 
 {emlak_info}
+
+{housing_loan_info}
 
 {traffic_info}
 
