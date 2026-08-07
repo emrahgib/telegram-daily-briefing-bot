@@ -5,12 +5,15 @@ import logging
 
 def get_vehicle_maintenance_status():
     """
-    Motosiklet yağ değişimi kalan km sayacını hesaplar ve config.json dosyasını gün gün günceller.
+    Motosiklet yağ değişimi sayacı:
+    - Hafta içi (Pazartesi - Cuma): Günde 30 km düşer ve günceller.
+    - Hafta sonu (Cumartesi - Pazar): Kullanılmadığı için km düşmez.
     """
     config_path = os.path.join(os.path.dirname(__file__), "..", "config.json")
     
     daily_km = 30
     remaining_km = 1600
+    target_km = 1600
     last_update_date = ""
 
     if os.path.exists(config_path):
@@ -20,12 +23,17 @@ def get_vehicle_maintenance_status():
                 moto_cfg = data.get("motorcycle", {})
                 daily_km = moto_cfg.get("daily_km", 30)
                 remaining_km = moto_cfg.get("remaining_km", 1600)
+                target_km = moto_cfg.get("target_km", 1600)
                 last_update_date = moto_cfg.get("last_update_date", "")
 
-            today_str = datetime.date.today().strftime("%Y-%m-%d")
+            today = datetime.date.today()
+            today_str = today.strftime("%Y-%m-%d")
 
-            # Eğer bugün henüz düşüş yapılmadıysa 30 km düş ve kaydet
-            if last_update_date != today_str:
+            # 0=Pazartesi, 1=Salı, 2=Çarşamba, 3=Perşembe, 4=Cuma, 5=Cumartesi, 6=Pazar
+            is_weekday = today.weekday() < 5
+
+            # Eğer bugün hafta içi ise ve henüz düşüş yapılmadıysa 30 km düş
+            if is_weekday and last_update_date != today_str:
                 remaining_km = max(0, remaining_km - daily_km)
                 data["motorcycle"]["remaining_km"] = remaining_km
                 data["motorcycle"]["last_update_date"] = today_str
@@ -35,12 +43,23 @@ def get_vehicle_maintenance_status():
         except Exception as e:
             logging.warning(f"Motosiklet km güncelleme hatası: {e}")
 
+    done_km = target_km - remaining_km
+    today_weekday = datetime.date.today().weekday()
+
     if remaining_km <= 0:
-        status_msg = "🚨 UYARI: Motosikletinizin yağ değişim zamanı geldi! (0 km kaldı)"
+        status_msg = f"🏍️ Aracım motorsiklet: Yapılacak km: {done_km} km, 🚨 YAĞ DEĞİŞİM ZAMANI GELDİ! (0 km kaldı)."
+    elif today_weekday >= 5:
+        # Hafta sonu mesajı
+        status_msg = f"🏍️ Aracım motorsiklet: Hafta sonu kullanılmıyor. Yapılacak km: {done_km} km, Yağ değişimine kalan km: {remaining_km} km."
     else:
-        status_msg = f"🏍️ Motosiklet: Günde {daily_km} km yol yapıyor. Yağ değişimine {remaining_km} km kaldı."
+        # Hafta içi mesajı
+        status_msg = f"🏍️ Aracım motorsiklet: Hafta içi günde {daily_km} km yol yapıyor. Yapılacak km: {done_km} km, Yağ değişimine kalan km: {remaining_km} km."
 
     return status_msg
 
 if __name__ == "__main__":
+    import sys
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
     print(get_vehicle_maintenance_status())
+

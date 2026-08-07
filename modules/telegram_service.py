@@ -16,7 +16,7 @@ from .fuel import get_fuel_prices
 
 def compose_daily_briefing():
     """
-    Tüm modüllerden gelen verileri toplayıp kullanıcı isteğine tam uygun Telegram günlük özet mesajını oluşturur.
+    Tüm modüllerden gelen verileri toplayıp kullanıcının tam istediği formatta Telegram günlük özet mesajını oluşturur.
     """
     date_str = datetime.now().strftime("%d.%m.%Y")
     
@@ -50,7 +50,7 @@ def compose_daily_briefing():
 
 {fuel_info}
 
-Have a great day! 🚀
+Günün güzel geçsin! 😊
 """
     return message
 
@@ -58,7 +58,6 @@ def send_telegram_message(message_text, bot_token=None, chat_id=None):
     """
     Hazırlanan mesajı Telegram Bot API aracılığıyla kullanıcının Telegram hesabına gönderir.
     """
-    # Config'ten token ve chat_id oku
     config_path = os.path.join(os.path.dirname(__file__), "..", "config.json")
     if os.path.exists(config_path):
         try:
@@ -72,11 +71,11 @@ def send_telegram_message(message_text, bot_token=None, chat_id=None):
             logging.error(f"Config okuma hatası: {e}")
 
     if not bot_token or bot_token == "YOUR_TELEGRAM_BOT_TOKEN_HERE":
-        print("⚠️ HATA: Telegram Bot Token ayarlanmamış! Lütfen config.json dosyasını düzenleyin.")
+        print("⚠️ HATA: Telegram Bot Token ayarlanmamış! Lütfen config.json dosyasını veya GitHub Secrets düzenleyin.")
         return False, "Bot Token eksik."
 
     if not chat_id or chat_id == "YOUR_TELEGRAM_CHAT_ID_HERE":
-        print("⚠️ HATA: Telegram Chat ID ayarlanmamış! Lütfen config.json dosyasını düzenleyin.")
+        print("⚠️ HATA: Telegram Chat ID ayarlanmamış! Lütfen config.json dosyasını veya GitHub Secrets düzenleyin.")
         return False, "Chat ID eksik."
 
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
@@ -102,5 +101,5 @@ def send_telegram_message(message_text, bot_token=None, chat_id=None):
 
 if __name__ == "__main__":
     msg = compose_daily_briefing()
-    print("--- OLUŞTURULAN ÖZET MESAJ ---")
+    print("--- OLUŞTURULAN GÜNCEL MESAJ ---")
     print(msg)

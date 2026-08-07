@@ -3,67 +3,57 @@ import logging
 
 def get_rdr2_status():
     """
-    Steam ve Epic Games üzerinden RDR 2 (Red Dead Redemption 2) fiyat ve indirim durumunu sorgular.
+    RDR 2 (Red Dead Redemption 2) fiyat durumunu kontrol eder.
+    600 TL altına düşmediği sürece: 'RDR 2 epic ve steamde indirim yok.' yazar.
+    600 TL altına düştüğünde ise özel İNDİRİM ALARMI mesajı gönderir.
     """
-    steam_price = "30 $"
-    epic_price = "2500 TL"
-    discount_status = "indirim gelmedi."
-    
-    # 1. Steam Store API Query for AppID 1174180 (Red Dead Redemption 2)
+    rdr2_message = "🎮 RDR 2 epic ve steamde indirim yok."
+    target_price_limit_tl = 600
+
+    # 1. Steam Live Query
     try:
-        url = "https://store.steampowered.com/api/appdetails?appids=1174180&cc=us"
-        res = requests.get(url, timeout=10).json()
+        steam_url = "https://store.steampowered.com/api/appdetails?appids=1174180&cc=us"
+        res = requests.get(steam_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=8).json()
         if res.get("1174180", {}).get("success"):
-            price_data = res["1174180"]["data"].get("price_overview", {})
-            if price_data:
-                final_price = price_data.get("final_formatted", "")
-                discount = price_data.get("discount_percent", 0)
-                if final_price:
-                    steam_price = final_price
-                if discount > 0:
-                    discount_status = f"%{discount} İNDİRİM VAR! Fiyat: {final_price}"
+            price_overview = res["1174180"]["data"].get("price_overview", {})
+            if price_overview:
+                discount_percent = price_overview.get("discount_percent", 0)
+                final_cents = price_overview.get("final", 5999)
+                final_usd = final_cents / 100.0
+                
+                # Tahmini Dolar/TL kuru 34 TL kabul edildiğinde USD -> TL çevrimi
+                estimated_tl = final_usd * 34.0
+                
+                if estimated_tl < target_price_limit_tl or discount_percent >= 50:
+                    rdr2_message = f"🎮 🚨 MÜJDE! RDR 2 Steam'de indirime girdi! Fiyat: ${final_usd:.2f} (%{discount_percent} indirim)."
     except Exception as e:
-        logging.warning(f"Steam RDR2 sorgusu başarısız: {e}")
+        logging.warning(f"Steam RDR2 kontrol hatası: {e}")
 
-    # 2. Epic Games Store GraphQL Query
+    # 2. Epic Games Live Query
     try:
-        epic_url = "https://graphql.epicgames.com/graphql"
-        query = {
-            "query": """
-            {
-              Catalog {
-                searchStore(keywords: "Red Dead Redemption 2", category: "games", limit: 1) {
-                  elements {
-                    title
-                    price(country: "TR") {
-                      totalPrice {
-                        fmtPrice(discountPrice: "0") {
-                          originalPrice
-                          discountPrice
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            """
+        epic_gql = "https://graphql.epicgames.com/graphql"
+        payload = {
+            "query": "{ Catalog { searchStore(keywords: \"Red Dead Redemption 2\", country: \"TR\", locale: \"tr-TR\", limit: 1) { elements { title price(country: \"TR\") { totalPrice { fmtPrice(discountPrice: \"0\") { originalPrice discountPrice } } } } } } }"
         }
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-        res = requests.post(epic_url, json=query, headers=headers, timeout=10).json()
-        elements = res.get("data", {}).get("Catalog", {}).get("searchStore", {}).get("elements", [])
-        if elements:
-            price_info = elements[0].get("price", {}).get("totalPrice", {}).get("fmtPrice", {})
-            disc_price = price_info.get("discountPrice", "")
-            orig_price = price_info.get("originalPrice", "")
-            if disc_price:
-                epic_price = f"{disc_price} TL" if not disc_price.endswith("TL") and not "$" in disc_price else disc_price
-                if orig_price and disc_price != orig_price:
-                    discount_status = f"EPİC'TE İNDİRİM VAR! Yeni Fiyat: {epic_price} (Eski: {orig_price})"
+        res = requests.post(epic_gql, json=payload, headers={"User-Agent": "Mozilla/5.0"}, timeout=8).json()
+        elems = res.get("data", {}).get("Catalog", {}).get("searchStore", {}).get("elements", [])
+        if elems:
+            p_info = elems[0].get("price", {}).get("totalPrice", {}).get("fmtPrice", {})
+            dp = p_info.get("discountPrice", "")
+            op = p_info.get("originalPrice", "")
+            
+            # Fiyattaki rakamları çıkar (Örn: 500 TL -> 500)
+            if dp and dp != op:
+                import re
+                num_match = re.search(r'\d+', dp.replace(".", "").replace(",", ""))
+                if num_match:
+                    price_val = int(num_match.group(0))
+                    if price_val <= target_price_limit_tl:
+                        rdr2_message = f"🎮 🚨 MÜJDE! RDR 2 Epic Games'te {price_val} TL'ye düştü! Kaçırma!"
     except Exception as e:
-        logging.warning(f"Epic Games RDR2 sorgusu başarısız: {e}")
+        logging.warning(f"Epic Games RDR2 kontrol hatası: {e}")
 
-    return f"🎮 RDR2: Epic'te {epic_price}, Steam'de {steam_price}. {discount_status}"
+    return rdr2_message
 
 if __name__ == "__main__":
     print(get_rdr2_status())
