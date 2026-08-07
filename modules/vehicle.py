@@ -5,9 +5,9 @@ import logging
 
 def get_vehicle_maintenance_status():
     """
-    Motosiklet yağ değişimi sayacı:
-    - Hafta içi (Pazartesi - Cuma): Günde 30 km düşer ve günceller.
-    - Hafta sonu (Cumartesi - Pazar): Kullanılmadığı için km düşmez.
+    PCX Motosiklet yağ değişimi sayacı:
+    - Hafta içi (Pazartesi - Cuma): PCX İşe gidiş - geliş 30 km yağ değişimine kalan km xxxx km
+    - Hafta sonu (Cumartesi - Pazar): PCX Hafta sonu kullanılmıyor. Yağ değişimine kalan km xxxx km
     """
     config_path = os.path.join(os.path.dirname(__file__), "..", "config.json")
     
@@ -43,17 +43,16 @@ def get_vehicle_maintenance_status():
         except Exception as e:
             logging.warning(f"Motosiklet km güncelleme hatası: {e}")
 
-    done_km = target_km - remaining_km
     today_weekday = datetime.date.today().weekday()
 
     if remaining_km <= 0:
-        status_msg = f"🏍️ Aracım motorsiklet: Yapılacak km: {done_km} km, 🚨 YAĞ DEĞİŞİM ZAMANI GELDİ! (0 km kaldı)."
+        status_msg = f"🏍️ PCX: 🚨 YAĞ DEĞİŞİM ZAMANI GELDİ! (0 km kaldı)."
     elif today_weekday >= 5:
         # Hafta sonu mesajı
-        status_msg = f"🏍️ Aracım motorsiklet: Hafta sonu kullanılmıyor. Yapılacak km: {done_km} km, Yağ değişimine kalan km: {remaining_km} km."
+        status_msg = f"🏍️ PCX Hafta sonu kullanılmıyor. Yağ değişimine kalan km {remaining_km} km."
     else:
         # Hafta içi mesajı
-        status_msg = f"🏍️ Aracım motorsiklet: Hafta içi günde {daily_km} km yol yapıyor. Yapılacak km: {done_km} km, Yağ değişimine kalan km: {remaining_km} km."
+        status_msg = f"🏍️ PCX İşe gidiş - geliş 30 km yağ değişimine kalan km {remaining_km} km."
 
     return status_msg
 
@@ -62,4 +61,3 @@ if __name__ == "__main__":
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(encoding='utf-8')
     print(get_vehicle_maintenance_status())
-

@@ -10,13 +10,13 @@ from .finance import get_finance_rates
 from .real_estate import get_real_estate_listings
 from .traffic import get_traffic_status
 from .sports import get_fenerbahce_match_status
-from .social import get_social_stats
 from .vehicle import get_vehicle_maintenance_status
 from .fuel import get_fuel_prices
+from .parking import get_parking_status
 
 def compose_daily_briefing():
     """
-    Tüm modüllerden gelen verileri toplayıp kullanıcının tam istediği formatta Telegram günlük özet mesajını oluşturur.
+    Tüm modüllerden gelen verileri toplayıp kullanıcının istediği güncel formatta Telegram günlük özet mesajını oluşturur.
     """
     date_str = datetime.now().strftime("%d.%m.%Y")
     
@@ -26,7 +26,7 @@ def compose_daily_briefing():
     emlak_info = get_real_estate_listings()
     traffic_info = get_traffic_status()
     sports_info = get_fenerbahce_match_status()
-    social_info = get_social_stats()
+    parking_info = get_parking_status()
     vehicle_info = get_vehicle_maintenance_status()
     fuel_info = get_fuel_prices()
 
@@ -44,7 +44,7 @@ def compose_daily_briefing():
 
 {sports_info}
 
-{social_info}
+{parking_info}
 
 {vehicle_info}
 
@@ -100,6 +100,9 @@ def send_telegram_message(message_text, bot_token=None, chat_id=None):
         return False, str(e)
 
 if __name__ == "__main__":
+    import sys
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
     msg = compose_daily_briefing()
-    print("--- OLUŞTURULAN GÜNCEL MESAJ ---")
+    print("--- OLUŞTURULAN YENİ GÜNCEL MESAJ ---")
     print(msg)
