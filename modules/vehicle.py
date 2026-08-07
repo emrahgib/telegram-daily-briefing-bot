@@ -6,14 +6,14 @@ import logging
 def get_vehicle_maintenance_status():
     """
     PCX Motosiklet yağ değişimi sayacı:
-    - Hafta içi (Pazartesi - Cuma): PCX İşe gidiş - geliş 30 km yağ değişimine kalan km xxxx km
-    - Hafta sonu (Cumartesi - Pazar): PCX Hafta sonu kullanılmıyor. Yağ değişimine kalan km xxxx km
+    - Sayaç 1250 km'den başlar.
+    - Arka planda hafta içi (Pazartesi-Cuma) her gün 30 km otomatik düşer.
+    - Ekrana sadece kalan km yazılır: 'PCX yağ değişimine kalan km: 1220 km'
     """
     config_path = os.path.join(os.path.dirname(__file__), "..", "config.json")
     
     daily_km = 30
-    remaining_km = 1600
-    target_km = 1600
+    remaining_km = 1250
     last_update_date = ""
 
     if os.path.exists(config_path):
@@ -22,8 +22,7 @@ def get_vehicle_maintenance_status():
                 data = json.load(f)
                 moto_cfg = data.get("motorcycle", {})
                 daily_km = moto_cfg.get("daily_km", 30)
-                remaining_km = moto_cfg.get("remaining_km", 1600)
-                target_km = moto_cfg.get("target_km", 1600)
+                remaining_km = moto_cfg.get("remaining_km", 1250)
                 last_update_date = moto_cfg.get("last_update_date", "")
 
             today = datetime.date.today()
@@ -46,13 +45,13 @@ def get_vehicle_maintenance_status():
     today_weekday = datetime.date.today().weekday()
 
     if remaining_km <= 0:
-        status_msg = f"🏍️ PCX: 🚨 YAĞ DEĞİŞİM ZAMANI GELDİ! (0 km kaldı)."
+        status_msg = "🏍️ PCX: 🚨 YAĞ DEĞİŞİM ZAMANI GELDİ! (0 km kaldı)."
     elif today_weekday >= 5:
         # Hafta sonu mesajı
-        status_msg = f"🏍️ PCX Hafta sonu kullanılmıyor. Yağ değişimine kalan km {remaining_km} km."
+        status_msg = f"🏍️ PCX Hafta sonu kullanılmıyor. Yağ değişimine kalan km: {remaining_km} km"
     else:
-        # Hafta içi mesajı
-        status_msg = f"🏍️ PCX İşe gidiş - geliş 30 km yağ değişimine kalan km {remaining_km} km."
+        # Hafta içi mesajı (Sadece kalan km yazılır)
+        status_msg = f"🏍️ PCX yağ değişimine kalan km: {remaining_km} km"
 
     return status_msg
 
