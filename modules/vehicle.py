@@ -6,14 +6,14 @@ import logging
 def get_vehicle_maintenance_status():
     """
     PCX Motosiklet yağ değişimi sayacı:
-    - Sayaç 1250 km'den başlar.
+    - Sayaç 900 km'den başlar.
     - Arka planda hafta içi (Pazartesi-Cuma) her gün 30 km otomatik düşer.
-    - Ekrana sadece kalan km yazılır: 'PCX yağ değişimine kalan km: 1220 km'
+    - Ekrana sadece kalan km yazılır: 'PCX yağ değişimine kalan km: 870 km'
     """
     config_path = os.path.join(os.path.dirname(__file__), "..", "config.json")
     
     daily_km = 30
-    remaining_km = 1250
+    remaining_km = 900
     last_update_date = ""
 
     if os.path.exists(config_path):
@@ -22,7 +22,7 @@ def get_vehicle_maintenance_status():
                 data = json.load(f)
                 moto_cfg = data.get("motorcycle", {})
                 daily_km = moto_cfg.get("daily_km", 30)
-                remaining_km = moto_cfg.get("remaining_km", 1250)
+                remaining_km = moto_cfg.get("remaining_km", 900)
                 last_update_date = moto_cfg.get("last_update_date", "")
 
             today = datetime.date.today()
