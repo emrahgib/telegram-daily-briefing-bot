@@ -1,12 +1,12 @@
 {
     "telegram": {
-        "bot_token": "8644613152:AAGnqvwoH-J8RADJOvQ8bdouz6CmKjLWusE",
-        "chat_id": "7253977319"
+        "bot_token": "YOUR_TELEGRAM_BOT_TOKEN_HERE",
+        "chat_id": "YOUR_TELEGRAM_CHAT_ID_HERE"
     },
     "motorcycle": {
         "daily_km": 30,
-        "remaining_km": 1220,
-        "target_km": 1250,
+        "remaining_km": 870,
+        "target_km": 900,
         "last_update_date": "2026-08-10"
     },
     "location": {
