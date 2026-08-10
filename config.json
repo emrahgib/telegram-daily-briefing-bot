@@ -5,9 +5,9 @@
     },
     "motorcycle": {
         "daily_km": 30,
-        "remaining_km": 1250,
+        "remaining_km": 1220,
         "target_km": 1250,
-        "last_update_date": "2026-08-07"
+        "last_update_date": "2026-08-10"
     },
     "location": {
         "city": "Istanbul",
