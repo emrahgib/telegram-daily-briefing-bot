@@ -2,8 +2,8 @@ name: Telegram Günlük Bildirim Botu
 
 on:
   schedule:
-    # Her gün UTC 04:00 (Türkiye saati TSI 07:00)
-    - cron: '0 4 * * *'
+    # Türkiye Saati ile 06:45 (03:45 UTC) - GitHub kuyruk ertelemesiyle 07:00 civarında atar
+    - cron: '45 3 * * *'
   workflow_dispatch: # GitHub web arayüzünden el ile tetikleme butonu
 
 permissions:
@@ -42,8 +42,8 @@ jobs:
               },
               'motorcycle': {
                   'daily_km': 30,
-                  'remaining_km': 1600,
-                  'target_km': 1600,
+                  'remaining_km': 900,
+                  'target_km': 900,
                   'last_update_date': ''
               },
               'location': {
@@ -51,11 +51,6 @@ jobs:
                   'district': 'Silivri',
                   'latitude': 41.0744,
                   'longitude': 28.2481
-              },
-              'social': {
-                  'channel_name': 'NEXUSVIDEOS',
-                  'subscribers': 150,
-                  'total_videos': 147
               },
               'real_estate': {
                   'max_price': 1400000,
