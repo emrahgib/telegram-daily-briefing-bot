@@ -1,7 +1,7 @@
 {
     "telegram": {
-        "bot_token": "YOUR_TELEGRAM_BOT_TOKEN_HERE",
-        "chat_id": "YOUR_TELEGRAM_CHAT_ID_HERE"
+        "bot_token": "8644613152:AAGnqvwoH-J8RADJOvQ8bdouz6CmKjLWusE",
+        "chat_id": "7253977319"
     },
     "motorcycle": {
         "daily_km": 30,
